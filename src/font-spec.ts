@@ -1,6 +1,5 @@
 import consola from "consola";
-import got from "got";
-import { basename, extname } from "node:path";
+import ky from "ky";
 
 const FONTS_TO_OVERRIDE = [
   "ABCGintoNord-ExtraBold",
@@ -119,7 +118,7 @@ type BunnyFontSpec = {
 };
 
 export async function fetchFontInformation(name: string): Promise<FontData> {
-  const res = await got(`https://fonts.google.com/download/list`, {
+  const res = await ky(`https://fonts.google.com/download/list`, {
     searchParams: {
       family: name,
     },
@@ -185,9 +184,9 @@ export function generateBunnyFontSpec(fontData: FontData): BunnyFontSpec {
             `no suitable replacement found for style ${baseStyle}`,
           );
         }
-        consola.info(`found style for ${font}:`, replacementStyle);
+        consola.debug(`found style for ${font}:`, replacementStyle);
         if (replacementStyle.base !== baseStyle) {
-          consola.warn(
+          consola.debug(
             `using ${replacementStyle.base} as replacement for ${baseStyle}`,
           );
         }
@@ -227,7 +226,7 @@ function parseFontFromId(id: string): FontStyle {
 }
 
 function fontIdFromPath(path: string) {
-  return basename(path, extname(path));
+  return path.split("/").pop()!.split(".")[0]!;
 }
 
 function sortAvailableStyles(availableStyles: FontStyle[]) {
