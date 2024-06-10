@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "name": "bunny-google-fonts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "got": "^14.4.1",
+    "tsx": "^4.15.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "prettier": "^3.3.1",
+    "typescript": "^5.4.5"
+  }
+}
