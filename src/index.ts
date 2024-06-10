@@ -1,5 +1,9 @@
+import { consola } from "consola";
 import got from "got";
+import { writeFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
+
+consola.options.formatOptions.depth = 10;
 
 const FONTS_TO_OVERRIDE = [
   "ABCGintoNord-ExtraBold",
@@ -77,6 +81,12 @@ const FALLBACKS: Record<string, string[]> = {
   ],
 };
 
+type FontStyle = {
+  base: string;
+  axes: string[];
+  opticalSize?: number;
+};
+
 type GoogleFontsList = {
   zipName: string;
   manifest: {
@@ -97,8 +107,10 @@ type GoogleFontsList = {
 
 type FontData = {
   name: string;
-  styleUrls: {
-    [style: string]: string;
+  styleUrls: Map<FontStyle, string>;
+  variableFontUrls: {
+    regular?: string;
+    italic?: string;
   };
 };
 
@@ -118,74 +130,144 @@ async function fetchFontInformation(name: string): Promise<FontData> {
   // for whatever ungodly reason, the response contains some garbage at the start.... to try and stop ppl from programmatically calling it? it's literally just a bunch of brackets & an apostrophe :ded:
   const trimmedRes = res.slice(res.indexOf("{"));
   const parsed = JSON.parse(trimmedRes) as GoogleFontsList;
-  return {
+
+  const fontData: FontData = {
     name,
-    styleUrls: Object.fromEntries(
-      parsed.manifest.fileRefs.map(({ filename, url }) => [
-        fontStyleFromId(fontIdFromPath(filename)),
-        url,
-      ]),
-    ),
+    styleUrls: new Map(),
+    variableFontUrls: {},
   };
+
+  for (const fileRef of parsed.manifest.fileRefs) {
+    if (fileRef.filename.includes("VariableFont")) {
+      if (fileRef.filename.includes("Italic")) {
+        fontData.variableFontUrls.italic = fileRef.url;
+      } else {
+        fontData.variableFontUrls.regular = fileRef.url;
+      }
+    } else {
+      fontData.styleUrls.set(
+        parseFontFromId(fontIdFromPath(fileRef.filename)),
+        fileRef.url,
+      );
+    }
+  }
+
+  return fontData;
 }
 
 function generateBunnyFontSpec(fontData: FontData): BunnyFontSpec {
-  const availableStyles = Object.keys(fontData.styleUrls);
+  const availableStyles = sortAvailableStyles([...fontData.styleUrls.keys()]);
   return {
     spec: 1,
     name: fontData.name,
     previewText: fontData.name,
     main: Object.fromEntries(
       FONTS_TO_OVERRIDE.map((font) => {
-        const style = fontStyleFromId(font);
-        const replacementStyle = pickClosestStyle(style, availableStyles);
+        const baseStyle = parseFontFromId(font).base;
+        // i wanted to use variable fonts here bc i thought they'd be more reliable, but turns out that Discord doesn't support them properly (so you just end up rendering the lightest weight always)
+        // if (
+        //   fontData.variableFontUrls.regular &&
+        //   !baseStyle.includes("Italic")
+        // ) {
+        //   consola.warn(`using regular variable font for ${font}`);
+        //   return [font, fontData.variableFontUrls.regular];
+        // } else if (
+        //   fontData.variableFontUrls.italic &&
+        //   baseStyle.includes("Italic")
+        // ) {
+        //   consola.warn(`using italic variable font for ${font}`);
+        //   return [font, fontData.variableFontUrls.italic];
+        // }
+        const replacementStyle = pickClosestStyle(baseStyle, availableStyles);
         if (!replacementStyle) {
-          console.error(`could not find replacement for ${style}`, fontData);
-          throw new Error(`no suitable replacement found for style ${style}`);
+          consola.error(
+            `could not find replacement for ${baseStyle}. available styles:`,
+            JSON.stringify(availableStyles, null, 2),
+          );
+          throw new Error(
+            `no suitable replacement found for style ${baseStyle}`,
+          );
         }
-        if (replacementStyle !== style) {
-          console.warn(`using ${replacementStyle} as replacement for ${style}`);
+        consola.info(`found style for ${font}:`, replacementStyle);
+        if (replacementStyle.base !== baseStyle) {
+          consola.warn(
+            `using ${replacementStyle.base} as replacement for ${baseStyle}`,
+          );
         }
         return [
           font,
-          // replacementStyle is derived from a set of fontData.styleUrl's keys
-          fontData.styleUrls[replacementStyle]!,
+          // replacementStyle is picked from fontData.styleUrls
+          fontData.styleUrls.get(replacementStyle)!,
         ];
       }),
     ),
   };
 }
 
-function fontStyleFromId(id: string) {
-  const underscoreIdx = id.indexOf("_");
-  if (~underscoreIdx) {
-    return id.substring(underscoreIdx + 1);
+function parseFontFromId(id: string): FontStyle {
+  const styleString = ~id.indexOf("_")
+    ? id.substring(id.indexOf("_") + 1)
+    : ~id.indexOf("-")
+      ? id.substring(id.indexOf("-") + 1)
+      : null;
+  if (!styleString) {
+    throw new Error(`unknown style for font identifier ${id}`);
   }
-  const dashIdx = id.indexOf("-");
-  if (~dashIdx) {
-    return id.substring(dashIdx + 1);
+  const [baseStyle, ...axes] = styleString.split(/[_-]/).reverse();
+  const style: FontStyle = {
+    base: baseStyle!,
+    axes: [],
+  };
+  for (const axis of axes) {
+    if (/^\d+pt$/.test(axis)) {
+      style.opticalSize = parseInt(axis, 10);
+    } else {
+      // unshift to re-reverse
+      style.axes.unshift(axis);
+    }
   }
-  throw new Error(`unknown style for font identifier ${id}`);
+  return style;
 }
 
 function fontIdFromPath(path: string) {
   return basename(path, extname(path));
 }
 
-function pickClosestStyle(style: string, availableStyles: string[]) {
-  if (availableStyles.includes(style)) return style;
-  for (const fallback of FALLBACKS[style] ?? []) {
-    if (availableStyles.includes(fallback)) return fallback;
+function sortAvailableStyles(availableStyles: FontStyle[]) {
+  return availableStyles.sort((a, b) => {
+    return (
+      // first we prioritize styles with no axes
+      a.axes.length - b.axes.length ||
+      // then styles with optical sizes closer to 16
+      Math.abs(16 - (a.opticalSize || 0)) - Math.abs(16 - (b.opticalSize || 0))
+      // there's no sane way to sort the rest of the axes (probably) so we just leave the rest as we got it
+    );
+  });
+}
+
+function pickClosestStyle(baseStyle: string, availableStyles: FontStyle[]) {
+  const baseStylesToCheck = [baseStyle, ...(FALLBACKS[baseStyle] ?? [])];
+  for (const toCheck of baseStylesToCheck) {
+    const foundStyle = availableStyles.find((it) => it.base === toCheck);
+    if (foundStyle) return foundStyle;
   }
   return null;
 }
 
 try {
-  const fontData = await fetchFontInformation("Open Sans");
-  console.log("fontData", fontData);
+  const [, , fontName] = process.argv;
+  if (!fontName) {
+    throw "usage: bunny-google-fonts <font name>";
+  }
+  const fontData = await fetchFontInformation(fontName);
+  consola.info("fontData", fontData);
   const bunnySpec = await generateBunnyFontSpec(fontData);
-  console.log("bunnySpec", JSON.stringify(bunnySpec, null, 2));
+  const serialized = JSON.stringify(bunnySpec, null, 2);
+  consola.info("bunnySpec", serialized);
+  const outPath = `./out/${fontName.replace(/\s+/g, "_")}.json`;
+  await writeFile(outPath, serialized);
+  consola.info(`wrote to ${outPath}`);
 } catch (e) {
-  console.error(e);
+  consola.error(e);
   process.exit(1);
 }
