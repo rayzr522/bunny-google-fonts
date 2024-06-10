@@ -55,9 +55,7 @@ function useFontsLoader() {
       void (async () => {
         setFontState({ status: "loading" });
         try {
-          const fonts = await ky(
-            "https://fonts.google.com/metadata/fonts",
-          ).json<{
+          const fonts = await ky("/api/fonts").json<{
             axisRegistry: unknown[];
             familyMetadataList: {
               category: string;
