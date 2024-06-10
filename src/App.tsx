@@ -129,7 +129,7 @@ function FontList() {
                 width={width}
                 itemData={filteredFonts}
                 itemCount={filteredFonts.length}
-                itemSize={125}
+                itemSize={150}
               >
                 {FontCard}
               </FixedSizeList>

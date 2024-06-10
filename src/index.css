@@ -117,6 +117,7 @@ button:focus-visible {
     }
 
     display: grid;
+    gap: 0.5rem;
     grid-template-columns: 1fr auto;
     align-items: center;
 
@@ -124,7 +125,7 @@ button:focus-visible {
       margin: 0;
     }
     & > h2 {
-      grid-column: 1 / 2;
+      grid-column: 1 / span 2;
     }
     & > p {
       opacity: 0.5;
