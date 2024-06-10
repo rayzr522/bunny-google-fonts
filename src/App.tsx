@@ -34,7 +34,7 @@ function App() {
       <FontLoaderProvider>
         <FontList />
       </FontLoaderProvider>
-      <ToastContainer />
+      <ToastContainer theme="dark" />
     </main>
   );
 }
