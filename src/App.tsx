@@ -24,6 +24,12 @@ function App() {
           </a>{" "}
           in <a href="https://github.com/pyoncord/Bunny">Bunny</a>
         </p>
+        <p>
+          need help using this? here's a{" "}
+          <a href="https://github.com/rayzr522/bunny-google-fonts#how-to-use">
+            how-to guide
+          </a>
+        </p>
       </div>
       <FontLoaderProvider>
         <FontList />
@@ -159,8 +165,9 @@ function FontCard({
               onClick={() =>
                 toast.promise(
                   async () => {
-                    const url = new URL("/api/spec", window.location.origin);
-                    url.searchParams.set("font", font.name);
+                    const url = new URL(
+                      `/spec/${encodeURIComponent(font.name)}`,
+                    );
                     await navigator.clipboard.writeText(url.toString());
                   },
                   {
