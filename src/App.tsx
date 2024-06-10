@@ -1,20 +1,16 @@
 import "react-toastify/dist/ReactToastify.css";
 
 import ky from "ky";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useDebounce } from "react-use";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList, type ListChildComponentProps } from "react-window";
-import { Loader } from "./Loader";
-import { addFontToDocumentHead } from "./font-manager";
+import {
+  FontLoaderContext,
+  FontLoaderProvider,
+} from "./components/FontLoaderProvider";
+import { Loader } from "./components/Loader";
 
 function App() {
   return (
@@ -139,45 +135,6 @@ function FontList() {
       );
     }
   }
-}
-
-const FontLoaderContext = createContext<{
-  loadedFonts: Set<string>;
-  loadFont(name: string): void;
-}>({
-  loadedFonts: new Set(),
-  loadFont() {},
-});
-
-function getDocumentFontFamilies() {
-  return new Set([...document.fonts].map((it) => it.family));
-}
-
-function FontLoaderProvider({ children }: { children: React.ReactNode }) {
-  const [loadedFonts, setLoadedFonts] = useState(getDocumentFontFamilies);
-  const lastFontSize = useRef(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (document.fonts.size !== lastFontSize.current) {
-        setLoadedFonts(getDocumentFontFamilies);
-        lastFontSize.current = document.fonts.size;
-      }
-    }, 250);
-    return () => clearInterval(interval);
-  }, []);
-  const loadFont = useMemo(
-    () => (name: string) => {
-      if (addFontToDocumentHead(name)) {
-        setLoadedFonts(getDocumentFontFamilies);
-      }
-    },
-    [],
-  );
-  return (
-    <FontLoaderContext.Provider value={{ loadedFonts, loadFont }}>
-      {children}
-    </FontLoaderContext.Provider>
-  );
 }
 
 function FontCard({
