@@ -1,4 +1,4 @@
-import { fetchFontInformation, generateBunnyFontSpec } from "@/font-spec";
+import { fetchFontInformation, generateBunnyFontSpec } from "../src/font-spec";
 
 export const config = {
   runtime: "edge",

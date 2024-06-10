@@ -36,8 +36,7 @@
     "tsx": "^4.15.1",
     "typescript": "^5.2.2",
     "vercel": "^34.2.6",
-    "vite": "^5.2.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite": "^5.2.0"
   },
   "pnpm": {
     "overrides": {

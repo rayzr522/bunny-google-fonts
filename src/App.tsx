@@ -167,6 +167,7 @@ function FontCard({
                   async () => {
                     const url = new URL(
                       `/spec/${encodeURIComponent(font.name)}`,
+                      location.origin,
                     );
                     await navigator.clipboard.writeText(url.toString());
                   },
