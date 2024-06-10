@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -64,5 +68,79 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+#root {
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.app-layout {
+  height: 100vh;
+  height: 100dvh;
+  padding: 2rem;
+
+  display: grid;
+  min-width: 0px;
+  gap: 1rem;
+  grid-template-rows: auto 1fr;
+
+  overflow: hidden;
+}
+
+.app-layout > img {
+  margin: auto;
+}
+
+.fonts-list {
+  & > input {
+    padding: 0.5rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.font-card {
+  padding: 0.25rem;
+
+  & > div {
+    height: 100%;
+    padding: 1rem;
+    border: 1px solid grey;
+    border-radius: 0.5rem;
+
+    transition: background-color 0.15s ease-in-out;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+
+    & > * {
+      margin: 0;
+    }
+    & > h2 {
+      grid-column: 1 / 2;
+    }
+    & > p {
+      opacity: 0.5;
+      grid-column: 1;
+    }
+    & > button {
+      grid-column: 2;
+
+      transition: background-color 0.15s ease-in-out;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+      &:active {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    }
   }
 }
