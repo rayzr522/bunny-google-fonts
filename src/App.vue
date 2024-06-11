@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { useToast } from "vue-toastification";
 import FontList from "./components/FontList.vue";
 import Navbar from "./components/Navbar.vue";
 import { link } from "./styles";
-
-const toast = useToast();
 </script>
 
 <template>
   <main class="max-w-3xl mx-auto">
-    <ToastContainer theme="colored" position="top-center" />
     <Navbar />
     <div class="p-4 grid gap-8">
       <!-- about -->
@@ -47,8 +43,6 @@ const toast = useToast();
         </p>
       </div>
       <FontList />
-      <!-- <FontLoaderProvider>
-        </FontLoaderProvider> -->
     </div>
   </main>
 </template>

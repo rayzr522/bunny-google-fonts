@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { useFetch } from "@vueuse/core";
+import { useFetch, useVirtualList } from "@vueuse/core";
 import { computed, ref } from "vue";
 import { useToast } from "vue-toastification";
 import { button, input } from "../styles";
+import Loader from "./Loader.vue";
+
+const ITEM_HEIGHT = 150;
 
 const toast = useToast();
 
-const { data, error, isFetching } = useFetch("/api/fonts").get().json<{
+const { data, error } = useFetch("/api/fonts").get().json<{
   axisRegistry: unknown[];
   familyMetadataList: {
     category: string;
@@ -38,6 +41,10 @@ const filteredFonts = computed(() =>
   ),
 );
 
+const { list, wrapperProps, containerProps } = useVirtualList(filteredFonts, {
+  itemHeight: 150,
+});
+
 async function copySpecLink(fontName: string) {
   const url = new URL(`/spec/${encodeURIComponent(fontName)}`, location.origin);
   try {
@@ -59,19 +66,36 @@ async function copySpecLink(fontName: string) {
       v-model="filter"
       placeholder="Filter fonts..."
     />
-    <div v-if="data" class="grid gap-4">
-      <div v-for="font in filteredFonts" :key="font.name" class="p-4">
+    <div
+      v-bind="containerProps"
+      v-if="data"
+      class="scrollbar rounded border border-neutral-200 dark:border-neutral-700"
+      :style="{ height: `${ITEM_HEIGHT * 5 + 40}px` }"
+    >
+      <div v-bind="wrapperProps">
         <div
-          class="p-4 grid items-center rounded border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600"
-          :style="{ gridTemplateColumns: '1fr auto' }"
+          v-for="item in list"
+          :key="item.index"
+          class="p-4"
+          :style="{ height: `${ITEM_HEIGHT}px` }"
         >
-          <h2 class="col-span-2 text-2xl" :style="{ fontFamily: font.name }">
-            {{ font.name }}
-          </h2>
-          <p :style="{ fontFamily: font.name }">{{ font.category }}</p>
-          <button :class="button()" @click="copySpecLink(font.name)">
-            Copy
-          </button>
+          <div
+            class="h-full p-4 grid items-center rounded border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600"
+            :style="{ gridTemplateColumns: '1fr auto' }"
+          >
+            <h2
+              class="col-span-2 text-2xl"
+              :style="{ fontFamily: item.data.name }"
+            >
+              {{ item.data.name }}
+            </h2>
+            <p :style="{ fontFamily: item.data.name }">
+              {{ item.data.category }}
+            </p>
+            <button :class="button()" @click="copySpecLink(item.data.name)">
+              Copy
+            </button>
+          </div>
         </div>
       </div>
     </div>
