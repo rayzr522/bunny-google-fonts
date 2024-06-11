@@ -4,13 +4,14 @@ import ky from "ky";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useDebounce } from "react-use";
-import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList, type ListChildComponentProps } from "react-window";
 import {
   FontLoaderContext,
   FontLoaderProvider,
 } from "./components/FontLoaderProvider";
 import { Loader } from "./components/Loader";
+
+const ITEM_SIZE = 150;
 
 function App() {
   return (
@@ -122,20 +123,16 @@ function FontList() {
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter fonts..."
           />
-          <AutoSizer>
-            {({ height, width }) => (
-              <FixedSizeList
-                className="virtual-list"
-                height={height}
-                width={width}
-                itemData={filteredFonts}
-                itemCount={filteredFonts.length}
-                itemSize={150}
-              >
-                {FontCard}
-              </FixedSizeList>
-            )}
-          </AutoSizer>
+          <FixedSizeList
+            className="virtual-list"
+            height={ITEM_SIZE * 5 + 25}
+            width="100%"
+            itemData={filteredFonts}
+            itemCount={filteredFonts.length}
+            itemSize={ITEM_SIZE}
+          >
+            {FontCard}
+          </FixedSizeList>
         </div>
       );
     }
