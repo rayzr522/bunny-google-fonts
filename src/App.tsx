@@ -125,6 +125,7 @@ function FontList() {
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList
+                className="virtual-list"
                 height={height}
                 width={width}
                 itemData={filteredFonts}

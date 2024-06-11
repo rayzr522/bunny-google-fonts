@@ -1,9 +1,15 @@
+/* basic reset */
 * {
   box-sizing: border-box;
 }
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -27,15 +33,11 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  height: 100svh;
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 3rem;
   line-height: 1.1;
 }
 
@@ -72,15 +74,16 @@ button:focus-visible {
 }
 
 #root {
+  height: 100%;
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
 }
 
 .app-layout {
-  height: 100vh;
-  height: 100dvh;
   padding: 2rem;
+  padding-bottom: 3rem;
+  height: 100%;
 
   display: grid;
   min-width: 0px;
@@ -95,6 +98,9 @@ button:focus-visible {
 }
 
 .fonts-list {
+  & .virtual-list {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
   & > input {
     padding: 0.5rem;
     width: 100%;
