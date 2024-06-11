@@ -1,32 +1,41 @@
 <script setup lang="ts">
+import { useFetch } from "@vueuse/core";
 import { computed, ref } from "vue";
 import { useToast } from "vue-toastification";
 import { button, input } from "../styles";
 
 const toast = useToast();
 
-const state = ref<
-  | { status: "idle" }
-  | { status: "loading" }
-  | {
-      status: "loaded";
-      fonts: { name: string; displayName: string | null; category: string }[];
-    }
-  | { status: "error"; error: string }
->({
-  status: "loaded",
-  fonts: [
-    { name: "Google Sans", displayName: "Google Sans", category: "sans-serif" },
-  ],
-});
+const { data, error, isFetching } = useFetch("/api/fonts").get().json<{
+  axisRegistry: unknown[];
+  familyMetadataList: {
+    category: string;
+    family: string;
+    displayName: string | null;
+    defaultSort: number;
+    popularity: number;
+    trending: number;
+  }[];
+  promotedScript: unknown;
+}>();
+
+const fonts = computed(
+  () =>
+    data.value?.familyMetadataList
+
+      .sort((a, b) => a.defaultSort - b.defaultSort)
+      .map((it) => ({
+        name: it.family,
+        displayName: it.displayName,
+        category: it.category,
+      })) ?? [],
+);
 
 const filter = ref("");
 const filteredFonts = computed(() =>
-  state.value.status === "loaded"
-    ? state.value.fonts.filter((font) =>
-        font.name.toLowerCase().includes(filter.value.toLowerCase()),
-      )
-    : [],
+  fonts.value.filter((font) =>
+    font.name.toLowerCase().includes(filter.value.toLowerCase()),
+  ),
 );
 
 async function copySpecLink(fontName: string) {
@@ -50,7 +59,7 @@ async function copySpecLink(fontName: string) {
       v-model="filter"
       placeholder="Filter fonts..."
     />
-    <div v-if="state.status === 'loaded'" class="grid gap-4">
+    <div v-if="data" class="grid gap-4">
       <div v-for="font in filteredFonts" :key="font.name" class="p-4">
         <div
           class="p-4 grid items-center rounded border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600"
@@ -66,9 +75,9 @@ async function copySpecLink(fontName: string) {
         </div>
       </div>
     </div>
-    <Loader v-else-if="state.status === 'loading'" />
-    <pre v-else-if="state.status === 'error'" class="text-red-500 text-lg">
-      There was an error loading fonts: {{ state.error }}
+    <pre v-else-if="error" class="text-red-500 text-lg">
+      There was an error loading fonts: {{ error }}
     </pre>
+    <Loader v-else />
   </div>
 </template>
