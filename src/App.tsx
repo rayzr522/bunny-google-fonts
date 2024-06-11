@@ -20,8 +20,8 @@ function App() {
         <h1>bunny google fonts</h1>
         <p>
           a simple site for using fonts from{" "}
-          <a href="https://fonts.gooogle.com" target="_blank">
-            fonts.google.com
+          <a href="https://fonts.google.com" target="_blank">
+            Google Fonts
           </a>{" "}
           in <a href="https://github.com/pyoncord/Bunny">Bunny</a>
         </p>
