@@ -149,7 +149,8 @@ function FontCard({
   const font = data[index];
   const { loadedFonts, loadFont } = useContext(FontLoaderContext);
   useEffect(() => loadFont(font.name), [loadFont, font.name]);
-  const isLoaded = loadedFonts.has(font.name);
+  const isLoaded =
+    loadedFonts.has(font.name) || loadedFonts.has(`"${font.name}"`);
   return (
     <div className="font-card" style={style}>
       <div>
