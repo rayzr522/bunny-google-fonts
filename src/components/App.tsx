@@ -5,38 +5,63 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useDebounce } from "react-use";
 import { FixedSizeList, type ListChildComponentProps } from "react-window";
-import {
-  FontLoaderContext,
-  FontLoaderProvider,
-} from "./components/FontLoaderProvider";
-import { Loader } from "./components/Loader";
+import { button, input, link } from "../styles";
+import { FontLoaderContext, FontLoaderProvider } from "./FontLoaderProvider";
+import { Loader } from "./Loader";
+import { Navbar } from "./Navbar";
 
 const ITEM_SIZE = 150;
 
 function App() {
   return (
-    <main className="app-layout">
-      <div>
-        <h1>bunny google fonts</h1>
-        <p>
-          a simple site for using fonts from{" "}
-          <a href="https://fonts.google.com" target="_blank">
-            Google Fonts
-          </a>{" "}
-          in <a href="https://github.com/pyoncord/Bunny">Bunny</a>
-        </p>
-        <p>
-          need help using this? here's a{" "}
-          <a href="https://github.com/rayzr522/bunny-google-fonts#how-to-use">
-            how-to guide
-          </a>
-        </p>
+    <main className="max-w-3xl mx-auto">
+      <ToastContainer theme="colored" position="top-center" />
+      <Navbar />
+      <div className="p-4 grid gap-8">
+        <About />
+        <FontLoaderProvider>
+          <FontList />
+        </FontLoaderProvider>
       </div>
-      <FontLoaderProvider>
-        <FontList />
-      </FontLoaderProvider>
-      <ToastContainer theme="dark" />
     </main>
+  );
+}
+
+function About() {
+  return (
+    <div className="leading-loose">
+      <p>
+        a simple site for using fonts from{" "}
+        <a
+          className={link()}
+          href="https://fonts.google.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Google Fonts
+        </a>{" "}
+        in{" "}
+        <a
+          className={link()}
+          href="http://github.com/pyoncord/Bunny"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Bunny
+        </a>
+      </p>
+      <p>
+        need help using this? here's a{" "}
+        <a
+          className={link()}
+          href="http://github.com/rayzr522/bunny-google-fonts#how-to-use"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          how-to guide
+        </a>
+      </p>
+    </div>
   );
 }
 
@@ -112,20 +137,25 @@ function FontList() {
       return <Loader />;
     }
     case "error": {
-      return <pre>There was an error loading fonts: {state.error}</pre>;
+      return (
+        <pre className="text-red-500 text-lg">
+          There was an error loading fonts: {state.error}
+        </pre>
+      );
     }
     case "loaded": {
       return (
-        <div className="fonts-list">
+        <div className="grid gap-4">
           <input
+            className={input()}
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter fonts..."
           />
           <FixedSizeList
-            className="virtual-list"
-            height={ITEM_SIZE * 5 + 25}
+            className="scrollbar rounded border border-neutral-200 dark:border-neutral-700"
+            height={ITEM_SIZE * 5 + 40}
             width="100%"
             itemData={filteredFonts}
             itemCount={filteredFonts.length}
@@ -152,13 +182,22 @@ function FontCard({
   const isLoaded =
     loadedFonts.has(font.name) || loadedFonts.has(`"${font.name}"`);
   return (
-    <div className="font-card" style={style}>
-      <div>
+    <div className="p-4" style={style}>
+      <div
+        className="p-4 h-full grid items-center rounded border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600"
+        style={{ gridTemplateColumns: "1fr auto" }}
+      >
         {isLoaded ? (
           <>
-            <h2 style={{ fontFamily: font.name }}>{font.name}</h2>
+            <h2
+              className="col-span-2 text-2xl"
+              style={{ fontFamily: font.name }}
+            >
+              {font.name}
+            </h2>
             <p style={{ fontFamily: font.name }}>{font.category}</p>
             <button
+              className={button()}
               onClick={() =>
                 toast.promise(
                   async () => {
@@ -170,7 +209,7 @@ function FontCard({
                   },
                   {
                     pending: "Copying to clipboard...",
-                    success: "Copied!",
+                    success: `Copied spec link for ${font.name}!`,
                     error:
                       "Failed to copy to clipboard! Please check website permissions in your browser and enable clipboard.",
                   },
