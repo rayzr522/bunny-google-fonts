@@ -2,8 +2,8 @@
 
 ## how to use
 
-1. browse through to the font you want to use and press `Copy` (ou can filter fonts by name if you know the name of the font you want) ![1000013839](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/cd021c4e-f64f-4188-b847-37d38df415df)
-2. a toast should appear saying it was successfully copied and a URL to the font JSON should now be in your clipboard ![1000013840](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/7f983c5f-6d46-4e85-bfe6-cb4b16fb625f)
+1. browse through to the font you want to use and press `Copy` (ou can filter fonts by name if you know the name of the font you want) ![1000013861](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/61796246-ab3d-48f6-b081-f095e2d51602)
+2. a toast should appear saying it was successfully copied and a URL to the font JSON should now be in your clipboard ![1000013862](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/1b5bc64b-7abd-46c5-8032-5cf0b5106c5b)
 3. in Bunny, go to `Settings` > `Fonts` ![1000013841](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/c47eda27-ae57-42f8-a091-05af1c264ac9)
 4. press the `+` button in the bottom right to add a new font ![1000013842](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/ae61e57a-1f27-49c7-8f12-6e589f0c19a3)
 5. press `Import font entries from link` ![1000013843](https://github.com/rayzr522/bunny-google-fonts/assets/15263431/a2d82eb5-20e0-4132-8847-a511badd2d9d)
