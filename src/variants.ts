@@ -11,3 +11,5 @@ export const input = tv({
 export const button = tv({
   base: "px-3 py-2 rounded max-w-max transition-all bg-neutral-300 dark:bg-neutral-700 hover:brightness-105 hover:scale-105 active:brightness-95 active:scale-95",
 });
+
+export const navLink = tv({ base: "font-medium hover:underline" });
