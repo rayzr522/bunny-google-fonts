@@ -8,7 +8,7 @@ import {
 import { computed, ref, watch, watchEffect } from "vue";
 import { useToast } from "vue-toastification";
 import { addFontToDocumentHead, loadedFonts } from "../font-manager";
-import { button, input } from "../styles";
+import { button, input } from "../variants";
 import Loader from "./Loader.vue";
 
 const ITEM_HEIGHT = 150;

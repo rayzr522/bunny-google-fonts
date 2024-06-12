@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { isDarkMode, toggleTheme } from "./theme";
+import { isDarkMode, toggleTheme } from "../theme";
 const isDark = ref(isDarkMode());
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { navLink } from "../styles";
+import { navLink } from "../variants";
 import ThemeToggle from "./ThemeToggle.vue";
 </script>
 

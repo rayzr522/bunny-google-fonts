@@ -3,7 +3,7 @@ import { onMounted } from "vue";
 import FontList from "./components/FontList.vue";
 import Navbar from "./components/Navbar.vue";
 import { refreshFonts } from "./font-manager";
-import { link } from "./styles";
+import { link } from "./variants";
 
 onMounted(() => {
   const interval = setInterval(() => {
