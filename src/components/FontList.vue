@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { useFetch, useVirtualList } from "@vueuse/core";
-import { computed, ref } from "vue";
+import {
+  useDebounce,
+  useDebounceFn,
+  useFetch,
+  useVirtualList,
+} from "@vueuse/core";
+import { computed, ref, watch, watchEffect } from "vue";
 import { useToast } from "vue-toastification";
+import { addFontToDocumentHead, loadedFonts } from "../font-manager";
 import { button, input } from "../styles";
 import Loader from "./Loader.vue";
 
@@ -33,16 +39,33 @@ const fonts = computed(
         category: it.category,
       })) ?? [],
 );
+type Font = (typeof fonts.value)[0];
 
 const filter = ref("");
+const debouncedFilter = useDebounce(filter, 200);
 const filteredFonts = computed(() =>
   fonts.value.filter((font) =>
-    font.name.toLowerCase().includes(filter.value.toLowerCase()),
+    font.name.toLowerCase().includes(debouncedFilter.value.toLowerCase()),
   ),
 );
 
-const { list, wrapperProps, containerProps } = useVirtualList(filteredFonts, {
-  itemHeight: 150,
+const { list, wrapperProps, containerProps, scrollTo } = useVirtualList(
+  filteredFonts,
+  {
+    itemHeight: 150,
+  },
+);
+
+watch(filteredFonts, () => scrollTo(0));
+
+const addFonts = useDebounceFn((items: { data: Font }[]) => {
+  for (const item of items) {
+    addFontToDocumentHead(item.data.name);
+  }
+}, 200);
+
+watchEffect(() => {
+  addFonts(list.value);
 });
 
 async function copySpecLink(fontName: string) {
@@ -65,6 +88,7 @@ async function copySpecLink(fontName: string) {
       type="text"
       v-model="filter"
       placeholder="Filter fonts..."
+      autofocus
     />
     <div
       v-bind="containerProps"
@@ -83,18 +107,21 @@ async function copySpecLink(fontName: string) {
             class="h-full p-4 grid items-center rounded border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600"
             :style="{ gridTemplateColumns: '1fr auto' }"
           >
-            <h2
-              class="col-span-2 text-2xl"
-              :style="{ fontFamily: item.data.name }"
-            >
-              {{ item.data.name }}
-            </h2>
-            <p :style="{ fontFamily: item.data.name }">
-              {{ item.data.category }}
-            </p>
-            <button :class="button()" @click="copySpecLink(item.data.name)">
-              Copy
-            </button>
+            <template v-if="loadedFonts.has(item.data.name)">
+              <h2
+                class="col-span-2 text-2xl"
+                :style="{ fontFamily: item.data.name }"
+              >
+                {{ item.data.name }}
+              </h2>
+              <p :style="{ fontFamily: item.data.name }">
+                {{ item.data.category }}
+              </p>
+              <button :class="button()" @click="copySpecLink(item.data.name)">
+                Copy
+              </button>
+            </template>
+            <Loader v-else />
           </div>
         </div>
       </div>

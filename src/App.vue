@@ -1,7 +1,16 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import FontList from "./components/FontList.vue";
 import Navbar from "./components/Navbar.vue";
+import { refreshFonts } from "./font-manager";
 import { link } from "./styles";
+
+onMounted(() => {
+  const interval = setInterval(() => {
+    refreshFonts();
+  }, 200);
+  return () => clearInterval(interval);
+});
 </script>
 
 <template>
